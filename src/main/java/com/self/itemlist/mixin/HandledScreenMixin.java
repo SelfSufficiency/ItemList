@@ -30,11 +30,4 @@ public class HandledScreenMixin {
             cir.setReturnValue(true);
         }
     }
-
-    @Inject(method = "charTyped", at = @At("HEAD"), cancellable = true)
-    private void onCharTyped(char chr, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-        if (ItemListScreen.charTyped(chr, modifiers)) {
-            cir.setReturnValue(true);
-        }
-    }
 }
