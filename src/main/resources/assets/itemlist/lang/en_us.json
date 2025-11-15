@@ -1,0 +1,13 @@
+{
+  "item.itemlist.pink_garnet": "Pink Garnet",
+  "item.itemlist.raw_pink_garnet": "Raw Pink Garnet",
+
+  "block.itemlist.pink_garnet_block": "Pink Garnet Block",
+  "block.itemlist.raw_pink_garnet_block": "Raw Pink Garnet Block",
+
+  "itemgroup.itemlist.pink_garnet_items": "Pink Garnet Items",
+  "itemgroup.itemlist.pink_garnet_blocks": "Pink Garnet Blocks",
+
+  "key.itemlist.toggle": "Toggle Item List",
+  "category.itemlist": "ItemList"
+}
