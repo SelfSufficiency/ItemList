@@ -48,12 +48,23 @@ public class ItemListScreen {
         filterItems.put("Redstone", "minecraft:redstone");
         filterItems.put("Nether", "minecraft:nether_brick");
         filterItems.put("End", "minecraft:end_crystal");
+        filterItems.put("Farming", "minecraft:diamond_hoe");
+        filterItems.put("Woodcutting", "minecraft:diamond_axe");
+        filterItems.put("Cooking", "minecraft:bowl");
+        filterItems.put("Artisan", "minecraft:anvil");
+        filterItems.put("Fishing", "minecraft:fishing_rod");
+        filterItems.put("MobDrops", "minecraft:rotten_flesh");
+        filterItems.put("Ammo", "minecraft:arrow");
+        filterItems.put("Augments", "minecraft:player_head");
+        filterItems.put("Melee", "minecraft:diamond_sword");
+        filterItems.put("Ranger", "minecraft:bow");
+        filterItems.put("Mage", "minecraft:blaze_rod");
     }
 
 
 
     public static void onScreenOpened(Screen screen) {
-        if (screen instanceof HandledScreen || screen instanceof RecipeViewerScreen) {
+        if (screen instanceof HandledScreen) {
             isVisible = true;
             currentPage = 0;
             hoveredItem = null;
@@ -69,7 +80,7 @@ public class ItemListScreen {
     }
 
     public static void render(DrawContext context, int mouseX, int mouseY, float delta, Screen screen) {
-        if (!isVisible || !(screen instanceof HandledScreen || screen instanceof RecipeViewerScreen)) {
+        if (!isVisible || !(screen instanceof HandledScreen)) {
             return;
         }
 
@@ -271,13 +282,14 @@ public class ItemListScreen {
             // Render item again on top
             CustomItem item = filteredItems.get(i);
             ItemStack stack = item.toItemStack();
-            context.drawItem(stack, x, y);
+            ItemStack displayStack = stack.copy();
+            displayStack.setCount(1);
+            context.drawItem(displayStack, x, y);
 
             // Draw count if > 1
             if (stack.getCount() > 1) {
                 context.drawText(client.textRenderer, Text.literal(String.valueOf(stack.getCount())),
-                        x + 17 - client.textRenderer.getWidth(String.valueOf(stack.getCount())),
-                        y + 9, 0xFFFFFF, true);
+                        x + 18, y + 9, 0xFFFFFF, true);
             }
         }
 
@@ -442,7 +454,7 @@ public class ItemListScreen {
             return handleRecipeChestClick(mouseX, mouseY, button, screen);
         }
 
-        if (!isVisible || !(screen instanceof HandledScreen || screen instanceof RecipeViewerScreen)) {
+        if (!isVisible || !(screen instanceof HandledScreen)) {
             return false;
         }
 
@@ -557,6 +569,17 @@ public class ItemListScreen {
 
         int gridX = panelX + 10;
         int gridY = panelY + 25;
+
+        // Check for right-click in item list area to reset filters
+        if (button == 1 && mouseX >= gridX && mouseX < gridX + COLUMNS * SLOT_SIZE &&
+                mouseY >= gridY && mouseY < gridY + ROWS * SLOT_SIZE) {
+            selectedFilters.clear();
+            selectedFilters.add("All");
+            currentPage = 0;
+            updateFilteredItems();
+            ItemList.LOGGER.info("Filters reset to 'All' via right-click");
+            return true;
+        }
 
         // Check if clicked on an item
         int startIndex = currentPage * ITEMS_PER_PAGE;

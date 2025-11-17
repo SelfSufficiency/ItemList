@@ -124,7 +124,7 @@ public class RecipeViewerScreen extends Screen {
             }
         }
 
-        // Render items and counts
+        // Render items
         for (int row = 0; row < gridRows; row++) {
             for (int col = 0; col < gridCols; col++) {
                 int slotX = gridX + col * slotSize;
@@ -132,31 +132,27 @@ public class RecipeViewerScreen extends Screen {
 
                 ItemStack stack = inventory.getStack(row * gridCols + col);
                 if (!stack.isEmpty()) {
-                    // Draw item icon with count 1
                     ItemStack displayStack = stack.copy();
                     displayStack.setCount(1);
                     context.drawItem(displayStack, slotX, slotY);
+                }
+            }
+        }
 
-                    // Draw the count only for recipe output items (result slot)
-                    if (col == 7 && row == 3) {
-                        int count = stack.getCount();
-                        String countText = String.valueOf(count);
-                        int textWidth = this.textRenderer.getWidth(countText);
-                        int textHeight = this.textRenderer.fontHeight;
-                        int textX = slotX + 20;
-                        int textY = slotY + 8 - textHeight / 2;
-                        context.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + textHeight + 1, 0xFFFFFFFF);
-                        context.drawText(this.textRenderer, Text.literal(countText), textX, textY, 0x000000, true);
-                    }
+        // Render counts on top
+        for (int row = 0; row < gridRows; row++) {
+            for (int col = 0; col < gridCols; col++) {
+                int slotX = gridX + col * slotSize;
+                int slotY = gridY + row * slotSize;
 
-                    // Hide the 7th column (col == 6) by not drawing anything there
-                    if (col == 6) {
-                        continue;
-                    }
-
-                    // Hide the 8th column (col == 7) by not drawing anything there
-                    if (col == 7) {
-                        continue;
+                ItemStack stack = inventory.getStack(row * gridCols + col);
+                if (!stack.isEmpty()) {
+                    // Draw count for recipe output in conventional position
+                    if (col == 7 && row == 3 && stack.getCount() > 1) {
+                        String countText = String.valueOf(stack.getCount());
+                        int textX = slotX + 16 - this.textRenderer.getWidth(countText) + 10; // Move right by 10 pixels
+                        int textY = slotY + 7; // Position at bottom of slot to avoid overlap
+                        context.drawText(this.textRenderer, Text.literal(countText), textX, textY, 0xFFFFFF, false);
                     }
                 }
             }
@@ -174,7 +170,7 @@ public class RecipeViewerScreen extends Screen {
     private void renderRecipeInfoBox(DrawContext context, CustomItem item, int gridX, int gridY) {
         // Position the info box to the left of the inventory grid
         int boxWidth = 200;
-        int boxHeight = 120;
+        int boxHeight = item.getRecipes().isEmpty() ? 160 : 120; // Increase height if no recipes to show obtain info
 
         // Position box to the left of the inventory
         int boxX = gridX - boxWidth - 10;
@@ -208,6 +204,12 @@ public class RecipeViewerScreen extends Screen {
             Text loreText = Text.literal(loreLine);
             context.drawTextWrapped(this.textRenderer, loreText, boxX + 5, yOffset, boxWidth - 10, 0xAAAAAA);
             yOffset += this.textRenderer.getWrappedLinesHeight(loreText, boxWidth - 10) + 5;
+        }
+
+        // If no recipes, show how to obtain
+        if (item.getRecipes().isEmpty()) {
+            Text obtainText = Text.literal("How to obtain: " + item.getObtain());
+            context.drawTextWrapped(this.textRenderer, obtainText, boxX + 5, yOffset, boxWidth - 10, 0xAAAAAA);
         }
     }
 
@@ -314,6 +316,11 @@ public class RecipeViewerScreen extends Screen {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean shouldPause() {
+        return false;
     }
 
     @Override
